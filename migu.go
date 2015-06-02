@@ -54,14 +54,18 @@ func Diff(db *sql.DB, filename string, src interface{}) ([]string, error) {
 	structMap := map[string][]*field{}
 	for name, structAST := range structASTMap {
 		for _, fld := range structAST.Fields.List {
+			f, err := newField("", fld)
+			if err != nil {
+				return nil, err
+			}
+			if f.Ignore {
+				continue
+			}
 			typeName, err := detectTypeName(fld)
 			if err != nil {
 				return nil, err
 			}
-			f, err := newField(typeName, fld)
-			if err != nil {
-				return nil, err
-			}
+			f.Type = typeName
 			for _, ident := range fld.Names {
 				field := *f
 				field.Name = ident.Name
@@ -129,6 +133,7 @@ type field struct {
 	Unique        bool
 	PrimaryKey    bool
 	AutoIncrement bool
+	Ignore        bool
 	Default       string
 	Size          uint64
 }
@@ -186,6 +191,7 @@ const (
 	tagAutoIncrement = "autoincrement"
 	tagUnique        = "unique"
 	tagSize          = "size"
+	tagIgnore        = "-"
 )
 
 func getTableMap(db *sql.DB) (map[string][]*columnSchema, error) {
@@ -497,6 +503,8 @@ func parseStructTag(f *field, tag reflect.StructTag) error {
 			f.AutoIncrement = true
 		case tagUnique:
 			f.Unique = true
+		case tagIgnore:
+			f.Ignore = true
 		case tagSize:
 			if len(optval) < 2 {
 				return fmt.Errorf("`size' tag must specify the parameter")
