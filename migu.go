@@ -634,7 +634,7 @@ func (schema *columnSchema) GoFieldTypes() ([]string, error) {
 			return []string{"*string", "sql.NullString"}, nil
 		}
 		return []string{"string"}, nil
-	case "datetime":
+	case "datetime", "timestamp":
 		if schema.isNullable() {
 			return []string{"*time.Time"}, nil
 		}
