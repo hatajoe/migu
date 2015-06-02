@@ -639,7 +639,7 @@ func (schema *columnSchema) GoFieldTypes() ([]string, error) {
 			return []string{"*time.Time"}, nil
 		}
 		return []string{"time.Time"}, nil
-	case "double":
+	case "double", "float":
 		if schema.isNullable() {
 			return []string{"*float32", "*float64", "sql.NullFloat64"}, nil
 		}
