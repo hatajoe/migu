@@ -2,6 +2,7 @@ package migu
 
 import (
 	"bytes"
+	"strings"
 	"unicode"
 )
 
@@ -36,6 +37,10 @@ func toSnakeCase(s string) string {
 	if s == "" {
 		return ""
 	}
+
+	r := strings.NewReplacer("ID", "Id", "UUID", "Uuid")
+	s = r.Replace(s)
+
 	var result bytes.Buffer
 	result.WriteRune(unicode.ToLower(rune(s[0])))
 	for _, c := range s[1:] {
