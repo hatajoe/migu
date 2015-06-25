@@ -51,8 +51,10 @@ func Diff(db *sql.DB, filename string, src interface{}) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	r := strings.NewReplacer("ID", "Id", "UUID", "Uuid")
 	structMap := map[string][]*field{}
 	for name, structAST := range structASTMap {
+		name := r.Replace(name)
 		for _, fld := range structAST.Fields.List {
 			f, err := newField("", fld)
 			if err != nil {
@@ -68,7 +70,8 @@ func Diff(db *sql.DB, filename string, src interface{}) ([]string, error) {
 			f.Type = typeName
 			for _, ident := range fld.Names {
 				field := *f
-				field.Name = ident.Name
+				n := r.Replace(ident.Name)
+				field.Name = n
 				structMap[name] = append(structMap[name], &field)
 			}
 		}
